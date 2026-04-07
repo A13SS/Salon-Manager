@@ -18,4 +18,10 @@ public class ServicioAppService {
                 .map(ServicioMapper::toResponse)
                 .collect(Collectors.toList());
     }
+
+    public List<ServicioMapper.ServicioResponse> listarTodos() {
+        return servicioRepository.listarTodos().stream()
+                .map(ServicioMapper::toResponse)
+                .collect(Collectors.toList());
+    }
 }

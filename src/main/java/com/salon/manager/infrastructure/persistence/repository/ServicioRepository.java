@@ -20,6 +20,11 @@ public interface ServicioRepository extends JpaRepository<ServicioEntity, Long>,
     }
 
     @Override
+    default List<Servicio> listarTodos() {
+        return findAll().stream().map(ServicioMapper::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
     default Optional<Servicio> buscarPorId(Long id) {
         return findById(id).map(ServicioMapper::toDomain);
     }

@@ -6,5 +6,6 @@ import java.util.Optional;
 
 public interface ServicioRepository {
     List<Servicio> listarActivos();
+    List<Servicio> listarTodos();
     Optional<Servicio> buscarPorId(Long id);
 }

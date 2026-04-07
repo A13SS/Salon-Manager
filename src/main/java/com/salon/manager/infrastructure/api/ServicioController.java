@@ -15,7 +15,17 @@ public class ServicioController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESIONAL')")
-    public ResponseEntity<?> listarServicios() {
+    public ResponseEntity<?> listarActivos() {
         return ResponseEntity.ok(servicioAppService.listarActivos());
     }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESIONAL')")
+    public ResponseEntity<?> listarServicios() {
+        return ResponseEntity.ok(servicioAppService.listarTodos());
+    }
+
+
+
+
 }
