@@ -14,7 +14,6 @@ public class ServicioController {
     private final ServicioAppService servicioAppService;
 
     @GetMapping("/activos")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESIONAL')")
     public ResponseEntity<?> listarActivos() {
         return ResponseEntity.ok(servicioAppService.listarActivos());
     }

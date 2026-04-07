@@ -17,13 +17,11 @@ public class UsuarioController {
     private final UsuarioAppService usuarioAppService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UsuarioResponse>> listarUsuarios() {
         return ResponseEntity.ok(usuarioAppService.listarTodos());
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESIONAL')")
     public ResponseEntity<UsuarioResponse> obtenerUsuario(@PathVariable Long id) {
 
         UsuarioResponse usuario = usuarioAppService.obtenerPorId(id);

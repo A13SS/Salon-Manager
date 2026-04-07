@@ -18,7 +18,7 @@ public class CitaController {
     private final CitaAppService citaAppService;
 
     @PostMapping("/crear")
-    @PreAuthorize("hasRole('CLIENTE')")
+    @PreAuthorize("hasRole('CLIENTE')or hasRole('PROFESIONAL') or hasRole('ADMIN')")
     public ResponseEntity<?> crearCita(@RequestBody @Valid CrearCitaRequest request) {
         try {
             CitaResponse cita = citaAppService.crearCita(
