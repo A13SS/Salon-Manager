@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -23,9 +25,15 @@ public class AuthController {
         try {
             usuarioAppService.registrar(dto.getEmail(), dto.getPassword(),
                     dto.getNombre(), dto.getTelefono());
-            return ResponseEntity.ok("Usuario registrado correctamente!! Muchas gracias y le esperamos pronto.... Rol: CLIENTE");
+            return ResponseEntity.ok(Map.of(
+                    "message", "Usuario registrado correctamente!! Muchas gracias y le esperamos pronto.... Rol: CLIENTE",
+                    "success", true
+            ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", e.getMessage(),
+                    "success", false
+            ));
         }
     }
 
