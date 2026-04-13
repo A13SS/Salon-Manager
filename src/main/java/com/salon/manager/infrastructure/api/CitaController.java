@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @RestController
 @RequestMapping("/api/citas")
@@ -45,6 +47,13 @@ public class CitaController {
     @PreAuthorize("hasRole('PROFESIONAL') or hasRole('ADMIN')")
     public ResponseEntity<List<CitaResponse>> getCitasProfesional(@PathVariable Long profesionalId) {
         return ResponseEntity.ok(citaAppService.obtenerPorProfesional(profesionalId));
+    }
+
+    @GetMapping("/fecha")
+    @PreAuthorize("hasRole('PROFESIONAL') or hasRole('ADMIN')")
+    public ResponseEntity<List<CitaResponse>> getCitasPorFecha(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fecha) {
+        return ResponseEntity.ok(citaAppService.obtenerPorFecha(fecha));
     }
 
     @PatchMapping("/{id}/atender")

@@ -10,6 +10,7 @@ public interface CitaRepository {
     Optional<Cita> buscarPorId(Long id);
     List<Cita> buscarPorCliente(Long clienteId);
     List<Cita> buscarPorProfesional(Long profesionalId);
+    List<Cita> buscarPorFecha(LocalDateTime fecha);
     long contarSolapes(Long profesionalId, LocalDateTime inicio, LocalDateTime fin);
     void eliminar(Long id);
 }

@@ -140,6 +140,12 @@ public class CitaAppService {
                 .collect(Collectors.toList());
     }
 
+    public List<CitaResponse> obtenerPorFecha(LocalDateTime fecha) {
+        return citaRepository.buscarPorFecha(fecha).stream()
+                .map(this::enriquecerResponse)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public void eliminarCita(Long citaId) {
         citaRepository.eliminar(citaId);

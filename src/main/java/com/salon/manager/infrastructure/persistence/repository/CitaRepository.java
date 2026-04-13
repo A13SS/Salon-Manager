@@ -24,6 +24,7 @@ public interface CitaRepository extends JpaRepository<CitaEntity, Long>, com.sal
 
     List<CitaEntity> findByClienteIdOrderByFechaInicioDesc(Long clienteId);
     List<CitaEntity> findByProfesionalIdOrderByFechaInicioAsc(Long profesionalId);
+    List<CitaEntity> findByFechaInicioBetweenOrderByFechaInicioAsc(LocalDateTime inicio, LocalDateTime fin);
 
     @Override
     default Cita guardar(Cita cita) {
@@ -46,6 +47,16 @@ public interface CitaRepository extends JpaRepository<CitaEntity, Long>, com.sal
     default List<Cita> buscarPorProfesional(Long profesionalId) {
         return findByProfesionalIdOrderByFechaInicioAsc(profesionalId).stream()
                 .map(CitaMapper::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
+    default List<Cita> buscarPorFecha(LocalDateTime fecha) {
+        LocalDateTime inicioDia = fecha.toLocalDate().atStartOfDay();
+        LocalDateTime finDia = inicioDia.plusDays(1);
+        return findByFechaInicioBetweenOrderByFechaInicioAsc(inicioDia, finDia)
+                .stream()
+                .map(CitaMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
