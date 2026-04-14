@@ -31,7 +31,7 @@ public class AuthController {
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "error", e.getMessage(),
+                    "message", e.getMessage(),
                     "success", false
             ));
         }
@@ -43,8 +43,10 @@ public class AuthController {
             LoginResponse response = authService.login(request.getEmail(), request.getPassword());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(401).body("Credenciales inválidas, por favor inténtelo de nuevo...");
+            return ResponseEntity.status(401).body(Map.of(
+                    "message", "Credenciales inválidas, por favor inténtelo de nuevo...",
+                    "success", false
+            ));
         }
     }
 }
