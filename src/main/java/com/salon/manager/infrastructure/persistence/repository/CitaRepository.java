@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +27,7 @@ public interface CitaRepository extends JpaRepository<CitaEntity, Long>, com.sal
     List<CitaEntity> findByClienteIdOrderByFechaInicioDesc(Long clienteId);
     List<CitaEntity> findByProfesionalIdOrderByFechaInicioAsc(Long profesionalId);
     List<CitaEntity> findByFechaInicioBetweenOrderByFechaInicioAsc(LocalDateTime inicio, LocalDateTime fin);
+    List<CitaEntity> findByProfesionalIdAndFechaInicioBetween(Long profesionalId, LocalDateTime inicio, LocalDateTime fin);
 
     @Override
     default Cita guardar(Cita cita) {
@@ -55,6 +58,16 @@ public interface CitaRepository extends JpaRepository<CitaEntity, Long>, com.sal
         LocalDateTime finDia = inicioDia.plusDays(1);
         return findByFechaInicioBetweenOrderByFechaInicioAsc(inicioDia, finDia)
                 .stream()
+                .map(CitaMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    default List<Cita> buscarPorProfesionalYFecha(Long profesionalId, LocalDate fecha) {
+        LocalDateTime inicio = fecha.atStartOfDay();
+        LocalDateTime fin = fecha.atTime(23, 59, 59);
+
+        return findByProfesionalIdAndFechaInicioBetween(profesionalId, inicio, fin).stream()
                 .map(CitaMapper::toDomain)
                 .collect(Collectors.toList());
     }

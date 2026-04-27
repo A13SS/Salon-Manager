@@ -2,12 +2,15 @@ package com.salon.manager.infrastructure.api;
 
 import com.salon.manager.application.dto.request.CrearCitaRequest;
 import com.salon.manager.application.dto.response.CitaResponse;
+import com.salon.manager.application.dto.response.HuecoResponse;
 import com.salon.manager.application.service.CitaAppService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -54,6 +57,22 @@ public class CitaController {
     public ResponseEntity<List<CitaResponse>> getCitasPorFecha(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fecha) {
         return ResponseEntity.ok(citaAppService.obtenerPorFecha(fecha));
+    }
+
+    @GetMapping("/huecos-disponibles")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<List<HuecoResponse>> getHuecosDisponibles(
+            @RequestParam LocalDate fecha,
+            @RequestParam Long profesionalId,
+            @RequestParam Long servicioId) {
+
+        List<HuecoResponse> huecos = citaAppService.calcularHuecosDisponibles(
+                fecha,
+                profesionalId,
+                servicioId
+        );
+
+        return ResponseEntity.ok(huecos);
     }
 
     @PatchMapping("/{id}/atender")

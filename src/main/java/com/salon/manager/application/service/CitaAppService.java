@@ -1,9 +1,11 @@
 package com.salon.manager.application.service;
 
 import com.salon.manager.application.dto.response.CitaResponse;
+import com.salon.manager.application.dto.response.HuecoResponse;
 import com.salon.manager.common.enums.EstadoCita;
 import com.salon.manager.common.exception.ResourceNotFoundException;
 import com.salon.manager.domain.model.Cita;
+import com.salon.manager.domain.model.Servicio;
 import com.salon.manager.domain.repository.CitaRepository;
 import com.salon.manager.domain.repository.ServicioRepository;
 import com.salon.manager.domain.repository.UsuarioRepository;
@@ -13,7 +15,11 @@ import com.salon.manager.logger.LoggerServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -166,4 +172,98 @@ public class CitaAppService {
 
         return response;
     }
+
+    public List<HuecoResponse> calcularHuecosDisponibles(
+            LocalDate fecha,
+            Long profesionalId,
+            Long servicioId) {
+
+        //Validar que la fecha no sea pasada
+        if (fecha.isBefore(LocalDate.now())) {
+            throw new RuntimeException("No se pueden seleccionar fechas pasadas");
+        }
+
+        //Obtener duración del servicio
+        Servicio servicio = servicioRepository.buscarPorId(servicioId)
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
+        int duracionServicio = servicio.getDuracionMin();
+
+
+        //Generar todos los huecos del día (9:00-14:00 y 17:00-20:00 es el horario)
+        List<HuecoResponse> huecos = new ArrayList<>();
+
+        //Mañana: 9:00 - 14:00
+        huecos.addAll(generarHuecosParaRango(
+                fecha, 9, 0, 14, 15, profesionalId
+        ));
+
+        //Tarde: 17:00 - 20:00
+        huecos.addAll(generarHuecosParaRango(
+                fecha, 17, 0, 20, 15, profesionalId
+        ));
+
+        return huecos;
+    }
+
+    private List<HuecoResponse> generarHuecosParaRango(
+            LocalDate fecha,
+            int horaInicio,
+            int minutoInicio,
+            int horaFin,
+            int minutoFin,
+            Long profesionalId) {
+
+        List<HuecoResponse> huecos = new ArrayList<>();
+
+        LocalDateTime inicio = LocalDateTime.of(fecha, LocalTime.of(horaInicio, minutoInicio));
+        LocalDateTime fin = LocalDateTime.of(fecha, LocalTime.of(horaFin, minutoFin));
+        List<Cita> citasExistentes = citaRepository.buscarPorProfesionalYFecha(profesionalId, fecha);
+
+        LocalDateTime horaActual = inicio;
+
+        while (!horaActual.isAfter(fin)) {
+            String horaStr = String.format("%02d:%02d",
+                    horaActual.getHour(),
+                    horaActual.getMinute()
+            );
+
+            //Verificar si este hueco de 15 min se solapa con alguna cita existente
+            LocalDateTime finalHoraActual = horaActual;
+            boolean ocupado = citasExistentes.stream()
+                    .anyMatch(cita -> {
+                        //Inicio y fin de la cita existente
+                        LocalDateTime inicioCita = cita.getFechaInicio();
+
+                        //Obtener duración del servicio de la cita existente
+                        int duracionCitaExistente = servicioRepository.buscarPorId(cita.getServicioId())
+                                .map(Servicio::getDuracionMin)
+                                .orElse(30);  //Default 30 min si no encuentra
+
+                        LocalDateTime finCita = inicioCita.plusMinutes(duracionCitaExistente);
+
+                        //El hueco actual es de 15 minutos
+                        LocalDateTime finHueco = finalHoraActual.plusMinutes(15);
+
+                        //Verificar solape:
+                        //Un hueco se solapa si empieza antes de que termine la cita
+                        //Y termina después de que empiece la cita
+                        return finalHoraActual.isBefore(finCita) && finHueco.isAfter(inicioCita);
+                    });
+
+            huecos.add(new HuecoResponse(
+                    horaStr,
+                    !ocupado,
+                    ocupado ? "OCUPADO" : "LIBRE"
+            ));
+
+            //Incrementar de 15 en 15 minutos
+            horaActual = horaActual.plusMinutes(15);
+        }
+
+
+        return huecos;
+    }
+
+
 }
