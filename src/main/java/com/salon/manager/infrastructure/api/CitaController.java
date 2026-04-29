@@ -92,10 +92,11 @@ public class CitaController {
     @PreAuthorize("hasRole('CLIENTE') or hasRole('PROFESIONAL') or hasRole('ADMIN')")
     public ResponseEntity<?> cancelarCita(@PathVariable Long id) {
         try {
-            CitaResponse cita = citaAppService.cancelarCita(id);
-            return ResponseEntity.ok(cita);
+            citaAppService.cancelarCita(id);
+            return ResponseEntity.ok(Map.of("mensaje", "Cita cencelada"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -103,10 +104,11 @@ public class CitaController {
     @PreAuthorize("hasRole('PROFESIONAL') or hasRole('ADMIN')")
     public ResponseEntity<?> confirmarCita(@PathVariable Long id) {
         try {
-            CitaResponse cita = citaAppService.confirmarCita(id);
-            return ResponseEntity.ok(cita);
+            citaAppService.confirmarCita(id);
+            return ResponseEntity.ok(Map.of("mensaje", "Cita confirmada"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
