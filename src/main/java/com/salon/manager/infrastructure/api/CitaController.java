@@ -25,7 +25,7 @@ public class CitaController {
     private final CitaAppService citaAppService;
 
     @PostMapping("/crear")
-    @PreAuthorize("hasRole('CLIENTE')or hasRole('PROFESIONAL') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('CLIENTE') or hasRole('PROFESIONAL') or hasRole('ADMIN')")
     public ResponseEntity<?> crearCita(@RequestBody @Valid CrearCitaRequest request) {
         try {
             CitaResponse cita = citaAppService.crearCita(
@@ -62,7 +62,7 @@ public class CitaController {
     }
 
     @GetMapping("/huecos-disponibles")
-    @PreAuthorize("hasRole('CLIENTE')")
+    @PreAuthorize("hasRole('CLIENTE') or hasRole('PROFESIONAL')")
     public ResponseEntity<List<HuecoResponse>> getHuecosDisponibles(
             @RequestParam LocalDate fecha,
             @RequestParam Long profesionalId,
