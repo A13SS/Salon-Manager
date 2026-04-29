@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 @RestController
@@ -113,9 +115,10 @@ public class CitaController {
     public ResponseEntity<?> eliminarCita(@PathVariable Long id) {
         try {
             citaAppService.eliminarCita(id);
-            return ResponseEntity.ok("Cita eliminada");
+            return ResponseEntity.ok(Map.of("mensaje", "Cita eliminada"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 }
