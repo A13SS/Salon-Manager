@@ -38,100 +38,136 @@ public class CitaAppService {
                                   Long servicioId, LocalDateTime inicio,
                                   String alergias,
                                   String observaciones) {
+        try {
+            loggerService.logAccion("CREAR_CITA",
+                    "Creando cita - Cliente: " + clienteId + ", Profesional: " + profesionalId,
+                    clienteId);
 
-        loggerService.logAccion("CREAR_CITA",
-                "Creando cita - Cliente: " + clienteId + ", Profesional: " + profesionalId,
-                clienteId);
+            usuarioRepository.buscarPorId(clienteId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
+            usuarioRepository.buscarPorId(profesionalId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Profesional no encontrado"));
+            servicioRepository.buscarPorId(servicioId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Servicio no encontrado"));
 
-        usuarioRepository.buscarPorId(clienteId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
-        usuarioRepository.buscarPorId(profesionalId)
-                .orElseThrow(() -> new ResourceNotFoundException("Profesional no encontrado"));
-        servicioRepository.buscarPorId(servicioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Servicio no encontrado"));
+            LocalDateTime fin = inicio.plusMinutes(30);
+            validadorSolapes.validar(profesionalId, inicio, fin);
 
-        LocalDateTime fin = inicio.plusMinutes(30);
-        validadorSolapes.validar(profesionalId, inicio, fin);
+            Cita cita = new Cita();
+            cita.setClienteId(clienteId);
+            cita.setProfesionalId(profesionalId);
+            cita.setServicioId(servicioId);
+            cita.setFechaInicio(inicio);
+            cita.setFechaFin(fin);
+            cita.setAlergias(alergias);
+            cita.setObservaciones(observaciones);
+            cita.setAtendido(false);
+            cita.setFechaCreacion(LocalDateTime.now());
 
-        Cita cita = new Cita();
-        cita.setClienteId(clienteId);
-        cita.setProfesionalId(profesionalId);
-        cita.setServicioId(servicioId);
-        cita.setFechaInicio(inicio);
-        cita.setFechaFin(fin);
-        cita.setAlergias(alergias);
-        cita.setObservaciones(observaciones);
-        cita.setAtendido(false);
-        cita.setFechaCreacion(LocalDateTime.now());
+            Cita guardada = citaRepository.guardar(cita);
 
-        Cita guardada = citaRepository.guardar(cita);
+            loggerService.logAccion("CITA_CREADA",
+                    "Cita creada con ID: " + guardada.getId(),
+                    clienteId);
 
-        loggerService.logAccion("CITA_CREADA",
-                "Cita creada con ID: " + guardada.getId(),
-                clienteId);
+            return enriquecerResponse(guardada);
 
-        return enriquecerResponse(guardada);
+        } catch (ResourceNotFoundException e) {
+            loggerService.logError("Recurso no encontrado al crear cita: " + e.getMessage(), clienteId);
+            throw e;
+        } catch (Exception e) {
+            loggerService.logError("Error inesperado al crear cita: " + e.getMessage(), clienteId);
+            throw e;
+        }
     }
 
     @Transactional
     public CitaResponse marcarAtendida(Long citaId) {
+        try {
+            loggerService.logAccion("MARCAR_ATENDIDA",
+                    "Marcando cita como atendida", citaId);
 
-        loggerService.logAccion("MARCAR_ATENDIDA",
-                "Marcando cita como atendida",
-                citaId);
+            Cita cita = citaRepository.buscarPorId(citaId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
+            cita.marcarAtendida();
+            Cita guardada = citaRepository.guardar(cita);
 
-        Cita cita = citaRepository.buscarPorId(citaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
-        cita.marcarAtendida();
-        Cita guardada = citaRepository.guardar(cita);
+            loggerService.logAccion("CITA_ATENDIDA",
+                    "Cita marcada como atendida", citaId);
 
-        loggerService.logAccion("CITA_ATENDIDA",
-                "Cita marcada como atendida",
-                citaId);
+            return enriquecerResponse(guardada);
 
-        return enriquecerResponse(guardada);
+        } catch (ResourceNotFoundException e) {
+            loggerService.logError("Cita no encontrada al marcar como atendida: " + e.getMessage(), citaId);
+            throw e;
+        } catch (Exception e) {
+            loggerService.logError("Error al marcar cita como atendida: " + e.getMessage(), citaId);
+            throw e;
+        }
     }
 
     @Transactional
     public CitaResponse cancelarCita(Long citaId) {
-        Cita cita = citaRepository.buscarPorId(citaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
+        try {
+            Cita cita = citaRepository.buscarPorId(citaId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
 
-        //Validar que se pueda cancelar la cita
-        if (cita.getEstado() == EstadoCita.REALIZADA) {
-            throw new RuntimeException("No se puede cancelar una cita ya realizada");
+            //Validar que se pueda cancelar la cita
+            if (cita.getEstado() == EstadoCita.REALIZADA) {
+                String errorMsg = "No se puede cancelar una cita ya realizada (ID: " + citaId + ")";
+                loggerService.logError(errorMsg, cita.getClienteId());
+                throw new RuntimeException(errorMsg);
+            }
+
+            cita.cancelar();
+
+            Cita guardada = citaRepository.guardar(cita);
+
+            loggerService.logAccion("CITA_CANCELADA",
+                    "Cita cancelada por el sistema",
+                    cita.getClienteId());
+
+            return enriquecerResponse(guardada);
+        } catch (ResourceNotFoundException e) {
+            loggerService.logError("Cita no encontrada al cancelar: " + e.getMessage(), citaId);
+            throw e;
+        } catch (Exception e) {
+            loggerService.logError("Error al cancelar cita: " + e.getMessage(), citaId);
+            throw e;
         }
 
-        cita.cancelar();
-
-        Cita guardada = citaRepository.guardar(cita);
-
-        loggerService.logAccion("CITA_CANCELADA",
-                "Cita cancelada por el sistema",
-                cita.getClienteId());
-
-        return enriquecerResponse(guardada);
     }
 
     @Transactional
     public CitaResponse confirmarCita(Long citaId) {
-        Cita cita = citaRepository.buscarPorId(citaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
+        try {
+            Cita cita = citaRepository.buscarPorId(citaId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
 
-        //Validar que no sea una fecha pasada
-        if (cita.getFechaInicio().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("No se puede confirmar una cita con fecha pasada");
+            //Validar que no sea una fecha pasada
+            if (cita.getFechaInicio().isBefore(LocalDateTime.now())) {
+                String errorMsg = "No se puede confirmar una cita con fecha pasada (ID: " + citaId + ")";
+                loggerService.logError(errorMsg, cita.getClienteId());
+                throw new RuntimeException(errorMsg);
+            }
+
+            cita.confirmar();
+
+            Cita guardada = citaRepository.guardar(cita);
+
+            loggerService.logAccion("CITA_CONFIRMADA",
+                    "Cita confirmada por profesional",
+                    cita.getClienteId());
+
+            return enriquecerResponse(guardada);
+
+        } catch (ResourceNotFoundException e) {
+            loggerService.logError("Cita no encontrada al confirmar: " + e.getMessage(), citaId);
+            throw e;
+        } catch (Exception e) {
+            loggerService.logError("Error al confirmar cita: " + e.getMessage(), citaId);
+            throw e;
         }
-
-        cita.confirmar();
-
-        Cita guardada = citaRepository.guardar(cita);
-
-        loggerService.logAccion("CITA_CONFIRMADA",
-                "Cita confirmada por profesional",
-                cita.getClienteId());
-
-        return enriquecerResponse(guardada);
     }
 
     public List<CitaResponse> obtenerPorCliente(Long clienteId) {
@@ -178,32 +214,45 @@ public class CitaAppService {
             Long profesionalId,
             Long servicioId) {
 
-        //Validar que la fecha no sea pasada
-        if (fecha.isBefore(LocalDate.now())) {
-            throw new RuntimeException("No se pueden seleccionar fechas pasadas");
+        try {
+            //Validar que la fecha no sea pasada
+            if (fecha.isBefore(LocalDate.now())) {
+                String errorMsg = "No se pueden seleccionar fechas pasadas: " + fecha;
+                loggerService.logError(errorMsg, profesionalId);
+                throw new RuntimeException(errorMsg);
+            }
+
+            //Obtener duración del servicio
+            Servicio servicio = servicioRepository.buscarPorId(servicioId)
+                    .orElseThrow(() -> {
+                        String errorMsg = "Servicio no encontrado con ID: " + servicioId;
+                        loggerService.logError(errorMsg, profesionalId);
+                        return new RuntimeException(errorMsg);
+                    });
+
+            int duracionServicio = servicio.getDuracionMin();
+
+
+            //Generar todos los huecos del día (9:00-14:00 y 17:00-20:00 es el horario)
+            List<HuecoResponse> huecos = new ArrayList<>();
+
+            //Mañana: 9:00 - 14:00
+            huecos.addAll(generarHuecosParaRango(
+                    fecha, 9, 0, 14, 15, profesionalId
+            ));
+
+            //Tarde: 17:00 - 20:00
+            huecos.addAll(generarHuecosParaRango(
+                    fecha, 17, 0, 20, 15, profesionalId
+            ));
+
+            return huecos;
+
+        } catch (Exception e) {
+            loggerService.logError("Error al calcular huecos disponibles: " + e.getMessage(), profesionalId);
+            throw e;
         }
 
-        //Obtener duración del servicio
-        Servicio servicio = servicioRepository.buscarPorId(servicioId)
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
-
-        int duracionServicio = servicio.getDuracionMin();
-
-
-        //Generar todos los huecos del día (9:00-14:00 y 17:00-20:00 es el horario)
-        List<HuecoResponse> huecos = new ArrayList<>();
-
-        //Mañana: 9:00 - 14:00
-        huecos.addAll(generarHuecosParaRango(
-                fecha, 9, 0, 14, 15, profesionalId
-        ));
-
-        //Tarde: 17:00 - 20:00
-        huecos.addAll(generarHuecosParaRango(
-                fecha, 17, 0, 20, 15, profesionalId
-        ));
-
-        return huecos;
     }
 
     private List<HuecoResponse> generarHuecosParaRango(
