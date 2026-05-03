@@ -24,7 +24,4 @@ public class ServicioController {
         return ResponseEntity.ok(servicioAppService.listarTodos());
     }
 
-
-
-
 }

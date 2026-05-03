@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 //Como uso una interfaz que extiende de JpaRepository, Spring crea la implementación directamente. Se ahorra tiempo en vez de hacer implementaciones de los repositorios.
+//Spring hace todo en runtime
 @Repository
 public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long>, com.salon.manager.domain.repository.UsuarioRepository {
 

@@ -43,7 +43,7 @@ public class AuthService {
                 "Usuario logueado: " + email,
                 userDetails.getId());
 
-        //Devolver respuesta de loguin
+        //Devolver respuesta de login
         return new LoginResponse(
                 jwt,
                 userDetails.getUsername(),
