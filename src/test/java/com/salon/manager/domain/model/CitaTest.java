@@ -98,7 +98,7 @@ class CitaTest {
 
     @Test
     void testConfirmar_FechaActual_LanzaExcepcion() {
-        cita.setFechaInicio(LocalDateTime.now());
+        cita.setFechaInicio(LocalDateTime.now().minusMinutes(1));
 
         assertThatThrownBy(() -> cita.confirmar())
                 .isInstanceOf(DomainException.class)

@@ -62,7 +62,7 @@ public class CitaController {
     }
 
     @GetMapping("/huecos-disponibles")
-    @PreAuthorize("hasRole('CLIENTE') or hasRole('PROFESIONAL')")
+    @PreAuthorize("hasRole('CLIENTE') or hasRole('PROFESIONAL') or hasRole('ADMIN')")
     public ResponseEntity<List<HuecoResponse>> getHuecosDisponibles(
             @RequestParam LocalDate fecha,
             @RequestParam Long profesionalId,
