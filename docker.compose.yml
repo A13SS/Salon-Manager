@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mariadb:11.6
+    container_name: salon-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: salon_db
+      MYSQL_USER: alejandro
+      MYSQL_PASSWORD: 123456
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - salon-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: salon-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Base de datos (host = nombre del servicio en Docker)
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/salon_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: alejandro
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # JWT
+      JWT_SECRET: SalonManager2026XyZ9abcDefGhiJklMnoPqrStuvWxYz1234567890AbCdEfGh
+      JWT_EXPIRATION: 86400000
+      # Logs
+      LOGGING_FILE: /app/logs/salon-manager.log
+      LOGGING_LEVEL: INFO
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - salon-network
+    volumes:
+      - ./logs:/app/logs
+
+networks:
+  salon-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
