@@ -2,12 +2,17 @@ package com.salon.manager.infrastructure.persistence.entity;
 
 import com.salon.manager.common.enums.Rol;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "usuario")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UsuarioEntity {
 
     @Id
