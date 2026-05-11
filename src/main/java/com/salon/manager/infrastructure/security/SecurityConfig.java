@@ -68,7 +68,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:4200",
-                "http://localhost:8080"
+                "https://frontend-salon-manager.vercel.app",
+                "https://frontend-salon-manager-1z47oaews-salon-manager.vercel.app"
         ));
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
