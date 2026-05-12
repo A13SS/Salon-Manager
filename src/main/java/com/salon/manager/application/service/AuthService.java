@@ -51,7 +51,8 @@ public class AuthService {
                         .iterator().next()
                         .getAuthority()
                         .replace("ROLE_", ""), // "ROLE_CLIENTE" "CLIENTE"
-                userDetails.getId()
+                userDetails.getId(),
+                userDetails.getNombre()
         );
     }
 }

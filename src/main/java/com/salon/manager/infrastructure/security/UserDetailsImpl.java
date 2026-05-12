@@ -14,6 +14,7 @@ public class UserDetailsImpl implements UserDetails {
     private Long id;
     private String email;
     private String password;
+    private String nombre;
     private Collection<? extends GrantedAuthority> authorities;
 
     public static UserDetailsImpl build(Usuario usuario) {
@@ -41,6 +42,8 @@ public class UserDetailsImpl implements UserDetails {
     public String getUsername() {
         return email;
     }
+
+    public String getNombre(){return nombre;}
 
     @Override
     public boolean isAccountNonExpired() { return true; }
