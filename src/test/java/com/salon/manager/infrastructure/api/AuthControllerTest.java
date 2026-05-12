@@ -78,7 +78,8 @@ class AuthControllerTest {
                 "jwt.token",
                 "test@email.com",
                 "CLIENTE",
-                1L
+                1L,
+                "alejandro"
         );
 
         when(authService.login("test@email.com", "password123")).thenReturn(loginResponse);
