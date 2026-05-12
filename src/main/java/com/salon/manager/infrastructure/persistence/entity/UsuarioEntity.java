@@ -32,7 +32,7 @@ public class UsuarioEntity {
     @Column(nullable = false, length = 50)
     private String nombre;
 
-    @Column(length = 10)
+    @Column(length = 20)
     private String telefono;
 
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
