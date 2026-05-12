@@ -22,6 +22,7 @@ public class UserDetailsImpl implements UserDetails {
         userDetails.id = usuario.getId();
         userDetails.email = usuario.getEmail();
         userDetails.password = usuario.getPassword();
+        userDetails.nombre = usuario.getNombre();
         userDetails.authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name())
         );
