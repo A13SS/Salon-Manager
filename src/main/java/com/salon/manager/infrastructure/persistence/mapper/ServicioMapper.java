@@ -1,5 +1,6 @@
 package com.salon.manager.infrastructure.persistence.mapper;
 
+import com.salon.manager.application.dto.response.ServicioResponse;
 import com.salon.manager.domain.model.Servicio;
 import com.salon.manager.infrastructure.persistence.entity.ServicioEntity;
 import lombok.Data;
@@ -28,12 +29,4 @@ public class ServicioMapper {
         return response;
     }
 
-    @Data
-    public static class ServicioResponse {
-        private Long id;
-        private String nombre;
-        private Integer duracionMin;
-        private java.math.BigDecimal precio;
-        private Boolean activo;
-    }
 }

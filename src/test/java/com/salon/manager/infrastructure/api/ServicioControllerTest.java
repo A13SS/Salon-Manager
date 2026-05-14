@@ -1,7 +1,7 @@
 package com.salon.manager.infrastructure.api;
 
+import com.salon.manager.application.dto.response.ServicioResponse;
 import com.salon.manager.application.service.ServicioAppService;
-import com.salon.manager.infrastructure.persistence.mapper.ServicioMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -29,7 +29,7 @@ class ServicioControllerTest {
 
     @Test
     void testListarActivos_Exito() {
-        ServicioMapper.ServicioResponse servicio = new ServicioMapper.ServicioResponse();
+        ServicioResponse servicio = new ServicioResponse();
         servicio.setId(1L);
         servicio.setNombre("Corte de pelo");
         servicio.setPrecio(new BigDecimal("25.00"));
@@ -57,12 +57,12 @@ class ServicioControllerTest {
 
     @Test
     void testListarServicios_Exito() {
-        ServicioMapper.ServicioResponse servicio1 = new ServicioMapper.ServicioResponse();
+        ServicioResponse servicio1 = new ServicioResponse();
         servicio1.setId(1L);
         servicio1.setNombre("Corte de pelo");
         servicio1.setActivo(true);
 
-        ServicioMapper.ServicioResponse servicio2 = new ServicioMapper.ServicioResponse();
+        ServicioResponse servicio2 = new ServicioResponse();
         servicio2.setId(2L);
         servicio2.setNombre("Tinte completo");
         servicio2.setActivo(false);

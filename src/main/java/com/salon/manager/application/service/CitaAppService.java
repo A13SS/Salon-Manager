@@ -193,7 +193,7 @@ public class CitaAppService {
         citaRepository.eliminar(citaId);
     }
 
-    //Con los id busco los datos del usuario, proesional y servicio.
+    //Con los id busco los datos del usuario, profesional y servicio.
     private CitaResponse enriquecerResponse(Cita cita) {
         CitaResponse response = CitaMapper.toResponse(cita);
 

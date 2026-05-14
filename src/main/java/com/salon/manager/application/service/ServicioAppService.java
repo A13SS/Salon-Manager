@@ -1,5 +1,6 @@
 package com.salon.manager.application.service;
 
+import com.salon.manager.application.dto.response.ServicioResponse;
 import com.salon.manager.domain.repository.ServicioRepository;
 import com.salon.manager.infrastructure.persistence.mapper.ServicioMapper;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +14,13 @@ public class ServicioAppService {
 
     private final ServicioRepository servicioRepository;
 
-    public List<ServicioMapper.ServicioResponse> listarActivos() {
+    public List<ServicioResponse> listarActivos() {
         return servicioRepository.listarActivos().stream()
                 .map(ServicioMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<ServicioMapper.ServicioResponse> listarTodos() {
+    public List<ServicioResponse> listarTodos() {
         return servicioRepository.listarTodos().stream()
                 .map(ServicioMapper::toResponse)
                 .collect(Collectors.toList());

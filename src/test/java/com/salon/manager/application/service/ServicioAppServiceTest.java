@@ -1,8 +1,8 @@
 package com.salon.manager.application.service;
 
+import com.salon.manager.application.dto.response.ServicioResponse;
 import com.salon.manager.domain.model.Servicio;
 import com.salon.manager.domain.repository.ServicioRepository;
-import com.salon.manager.infrastructure.persistence.mapper.ServicioMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,7 +55,7 @@ class ServicioAppServiceTest {
     void testListarActivos_Exito() {
         when(servicioRepository.listarActivos()).thenReturn(List.of(servicioActivo1, servicioActivo2));
 
-        List<ServicioMapper.ServicioResponse> responses = servicioAppService.listarActivos();
+        List<ServicioResponse> responses = servicioAppService.listarActivos();
 
         assertThat(responses).hasSize(2);
         assertThat(responses).extracting("id").containsExactlyInAnyOrder(1L, 2L);
@@ -70,7 +70,7 @@ class ServicioAppServiceTest {
     void testListarActivos_Vacio() {
         when(servicioRepository.listarActivos()).thenReturn(List.of());
 
-        List<ServicioMapper.ServicioResponse> responses = servicioAppService.listarActivos();
+        List<ServicioResponse> responses = servicioAppService.listarActivos();
 
         assertThat(responses).isEmpty();
         verify(servicioRepository, times(1)).listarActivos();
@@ -80,7 +80,7 @@ class ServicioAppServiceTest {
     void testListarTodos_Exito() {
         when(servicioRepository.listarTodos()).thenReturn(List.of(servicioActivo1, servicioActivo2, servicioInactivo));
 
-        List<ServicioMapper.ServicioResponse> responses = servicioAppService.listarTodos();
+        List<ServicioResponse> responses = servicioAppService.listarTodos();
 
         assertThat(responses).hasSize(3);
         assertThat(responses).extracting("id").containsExactlyInAnyOrder(1L, 2L, 3L);
@@ -95,7 +95,7 @@ class ServicioAppServiceTest {
     void testListarTodos_Vacio() {
         when(servicioRepository.listarTodos()).thenReturn(List.of());
 
-        List<ServicioMapper.ServicioResponse> responses = servicioAppService.listarTodos();
+        List<ServicioResponse> responses = servicioAppService.listarTodos();
 
         assertThat(responses).isEmpty();
         verify(servicioRepository, times(1)).listarTodos();
@@ -105,9 +105,9 @@ class ServicioAppServiceTest {
     void testListarActivos_MapeoCorrecto() {
         when(servicioRepository.listarActivos()).thenReturn(List.of(servicioActivo1));
 
-        List<ServicioMapper.ServicioResponse> responses = servicioAppService.listarActivos();
+        List<ServicioResponse> responses = servicioAppService.listarActivos();
 
-        ServicioMapper.ServicioResponse response = responses.get(0);
+        ServicioResponse response = responses.get(0);
         assertThat(response.getId()).isEqualTo(1L);
         assertThat(response.getNombre()).isEqualTo("Corte de pelo");
         assertThat(response.getDuracionMin()).isEqualTo(30);
@@ -126,7 +126,7 @@ class ServicioAppServiceTest {
 
         when(servicioRepository.listarActivos()).thenReturn(List.of(servicioConDecimales));
 
-        List<ServicioMapper.ServicioResponse> responses = servicioAppService.listarActivos();
+        List<ServicioResponse> responses = servicioAppService.listarActivos();
 
         assertThat(responses.get(0).getPrecio()).isEqualTo(new BigDecimal("123.45"));
     }
@@ -142,7 +142,7 @@ class ServicioAppServiceTest {
 
         when(servicioRepository.listarActivos()).thenReturn(List.of(servicioDuracionCero));
 
-        List<ServicioMapper.ServicioResponse> responses = servicioAppService.listarActivos();
+        List<ServicioResponse> responses = servicioAppService.listarActivos();
 
         assertThat(responses.get(0).getDuracionMin()).isEqualTo(0);
         assertThat(responses.get(0).getPrecio()).isEqualTo(BigDecimal.ZERO);
